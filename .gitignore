@@ -1,0 +1,10 @@
+node_modules/
+smart-contract/node_modules/
+smart-contract/artifacts/
+smart-contract/cache/
+.env
+.env.local
+.next/
+dist/
+build/
+coverage/
