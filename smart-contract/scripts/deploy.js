@@ -1,32 +1,30 @@
-const { ethers } = require("hardhat");
+const hre = require("hardhat");
 
 async function main() {
+  const MockERC20 = await hre.ethers.getContractFactory("MockERC20");
+  const token = await MockERC20.deploy();
 
-    // Deploy MockERC20
-    const MockERC20 = await ethers.getContractFactory("MockERC20");
+  await token.waitForDeployment();
 
-    const token = await MockERC20.deploy();
+  const tokenAddress = await token.getAddress();
 
-    await token.waitForDeployment();
+  console.log("MockERC20 deployed to:", tokenAddress);
 
-    const tokenAddress = await token.getAddress();
+  const CommunityLending = await hre.ethers.getContractFactory(
+    "CommunityLending"
+  );
 
-    console.log("MockERC20 deployed to:", tokenAddress);
+  const rosca = await CommunityLending.deploy(tokenAddress);
 
-    // Deploy CommunityLending
-    const CommunityLending = await ethers.getContractFactory("CommunityLending");
+  await rosca.waitForDeployment();
 
-    const lending = await CommunityLending.deploy(tokenAddress);
-
-    await lending.waitForDeployment();
-
-    console.log(
-        "CommunityLending deployed to:",
-        await lending.getAddress()
-    );
+  console.log(
+    "CommunityLending deployed to:",
+    await rosca.getAddress()
+  );
 }
 
 main().catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
+  console.error(error);
+  process.exitCode = 1;
 });
