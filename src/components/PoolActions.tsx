@@ -29,11 +29,11 @@ export default function PoolActions({
 
   const checkPrereqs = (): boolean => {
     if (!address) {
-      setMsg("Vui l\u00f2ng k\u1ebft n\u1ed1i v\u00ed tr\u01b0\u1edbc.");
+      setMsg("Vui lòng kết nối ví trước.");
       return false;
     }
     if (!lendingAddress || !isValidAddress(lendingAddress)) {
-      setMsg("Vui l\u00f2ng nh\u1eadp \u0111\u1ecba ch\u1ec9 CommunityLending.");
+      setMsg("Vui lòng nhập địa chỉ CommunityLending.");
       return false;
     }
     return true;
@@ -49,7 +49,7 @@ export default function PoolActions({
     setLastTx("");
     try {
       const tx = await fn();
-      setMsg(`${action}: \u0110ang ch\u1edd x\u00e1c nh\u1eadn...`);
+      setMsg(`${action}: Đang chờ xác nhận...`);
       setLastTx(tx.hash);
       await tx.wait();
       saveTxRecord({
@@ -59,11 +59,11 @@ export default function PoolActions({
         timestamp: Date.now(),
         chainId: chainId ?? 0,
       });
-      setMsg(`${action} th\u00e0nh c\u00f4ng!`);
+      setMsg(`${action} thành công!`);
       onActionComplete();
     } catch (err: any) {
       setMsg(
-        `${action} l\u1ed7i: ${err?.reason ?? err?.message ?? "Giao d\u1ecbch b\u1ecb t\u1eeb ch\u1ed1i"}`
+        `${action} lỗi: ${err?.reason ?? err?.message ?? "Giao dịch bị từ chối"}`
       );
     } finally {
       setLoading(null);
@@ -85,7 +85,7 @@ export default function PoolActions({
     });
 
   const deposit = () =>
-    execTx("\u0110\u00f3ng h\u1ee5i", async () => {
+    execTx("Đóng hụi", async () => {
       const signer = await getSigner();
       const contract = getLendingContract(lendingAddress, signer!);
       return contract.deposit(poolId);
@@ -94,7 +94,7 @@ export default function PoolActions({
   const submitOffer = () =>
     execTx("Submit Offer", async () => {
       if (!acceptedPayout || Number(acceptedPayout) <= 0) {
-        throw new Error("Vui l\u00f2ng nh\u1eadp s\u1ed1 ti\u1ec1n ch\u1ea5p nh\u1eadn nh\u1eadn.");
+        throw new Error("Vui lòng nhập số tiền chấp nhận nhận.");
       }
       const signer = await getSigner();
       const contract = getLendingContract(lendingAddress, signer!);
@@ -124,7 +124,7 @@ export default function PoolActions({
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-5">
       <h2 className="text-lg font-semibold text-slate-800 mb-4">
-        Thao t\u00e1c Pool
+        Thao tác Pool
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <ActionBtn
@@ -135,17 +135,17 @@ export default function PoolActions({
           disabled={btnDisabled()}
         />
         <ActionBtn
-          label="B\u1eaft \u0111\u1ea7u Pool"
+          label="Bắt đầu Pool"
           sublabel="startPool"
           onClick={startPool}
           loading={loading === "Start Pool"}
           disabled={btnDisabled()}
         />
         <ActionBtn
-          label="\u0110\u00f3ng h\u1ee5i"
+          label="Đóng hụi"
           sublabel="deposit"
           onClick={deposit}
-          loading={loading === "\u0110\u00f3ng h\u1ee5i"}
+          loading={loading === "Đóng hụi"}
           disabled={btnDisabled()}
         />
         <ActionBtn
@@ -156,7 +156,7 @@ export default function PoolActions({
           disabled={btnDisabled()}
         />
         <ActionBtn
-          label="Ch\u1ed1t k\u1ef3 n\u00e0y"
+          label="Chốt kỳ này"
           sublabel="withdrawCurrentRound"
           onClick={withdrawRound}
           loading={loading === "Withdraw Round"}
@@ -166,7 +166,7 @@ export default function PoolActions({
 
       <div className="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
         <label className="text-sm font-medium text-slate-600 block mb-1">
-          S\u1ed1 ti\u1ec1n ch\u1ea5p nh\u1eadn nh\u1eadn (cUSD)
+          Số tiền chấp nhận nhận (cUSD)
         </label>
         <div className="flex gap-2">
           <input
@@ -177,7 +177,7 @@ export default function PoolActions({
             className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           <ActionBtn
-            label="G\u1eedi Offer"
+            label="Gửi Offer"
             sublabel="submitWithdrawalOffer"
             onClick={submitOffer}
             loading={loading === "Submit Offer"}
@@ -189,7 +189,7 @@ export default function PoolActions({
       {msg && (
         <div
           className={`mt-3 text-sm px-4 py-2 rounded-lg break-all ${
-            msg.includes("th\u00e0nh c\u00f4ng")
+            msg.includes("thành công")
               ? "bg-emerald-50 border border-emerald-200 text-emerald-700"
               : "bg-slate-50 border border-slate-200 text-slate-700"
           }`}
@@ -225,7 +225,7 @@ function ActionBtn({
       disabled={disabled}
       className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50 text-left"
     >
-      <span className="block">{loading ? "\u0110ang x\u1eed l\u00fd..." : label}</span>
+      <span className="block">{loading ? "Đang xử lý..." : label}</span>
       <span className="block text-[10px] text-blue-200 mt-0.5 font-mono">
         {sublabel}
       </span>

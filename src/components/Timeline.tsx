@@ -13,7 +13,7 @@ export default function Timeline({ pool }: TimelineProps) {
           Payout Timeline
         </h2>
         <p className="text-sm text-slate-400">
-          T\u1ea3i pool \u0111\u1ec3 xem timeline.
+          Tải pool để xem timeline.
         </p>
       </div>
     );
@@ -39,18 +39,18 @@ export default function Timeline({ pool }: TimelineProps) {
           let dotClass = "bg-slate-300";
 
           if (isPast) {
-            label = "\u0110\u00e3 ho\u00e0n th\u00e0nh";
+            label = "Đã hoàn thành";
             textClass = "text-emerald-700";
             dotClass = "bg-emerald-500";
           } else if (isCurrent && isLast) {
-            label = "K\u1ef3 cu\u1ed1i";
+            label = "Kỳ cuối";
             textClass = "text-amber-700";
             dotClass = "bg-amber-500";
           } else if (isCurrent) {
             if (pool.phase === RoundPhase.CONTRIBUTING) {
-              label = "\u0110ang g\u00f3p";
+              label = "Đang góp";
             } else if (pool.phase === RoundPhase.OFFERING) {
-              label = "\u0110ang ch\u1ecdn ng\u01b0\u1eddi h\u1ed1t";
+              label = "Đang chọn người hốt";
             } else {
               label = ROUND_PHASE_LABELS[pool.phase];
             }
@@ -87,7 +87,7 @@ export default function Timeline({ pool }: TimelineProps) {
                 <div
                   className={`text-xs font-semibold ${textClass}`}
                 >
-                  K\u1ef3 {roundNum}
+                  Kỳ {roundNum}
                 </div>
                 <div
                   className={`text-[10px] mt-0.5 ${textClass} opacity-80`}
