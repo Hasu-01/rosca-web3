@@ -1,0 +1,17 @@
+export const COMMUNITY_LENDING_ABI = [
+  "function createPool(string memory _name, uint256 _contributionAmount, uint256 _maxMembers)",
+  "function joinPool(uint256 _poolId)",
+  "function startPool(uint256 _poolId)",
+  "function deposit(uint256 _poolId)",
+  "function submitWithdrawalOffer(uint256 _poolId, uint256 _acceptedPayout)",
+  "function skipWithdrawalOffer(uint256 _poolId)",
+  "function withdrawCurrentRound(uint256 _poolId)",
+  "function pools(uint256) view returns (uint256 id, string name, address creator, uint256 contributionAmount, uint256 maxMembers, uint256 currentMembers, uint256 currentRound, uint256 totalRounds, uint256 poolBalance, uint256 finalReceiverReserve, uint8 status, uint8 phase)",
+  "function getPoolMembers(uint256 _poolId) view returns (tuple(address wallet, bool hasReceived)[])",
+  "function getCurrentSelectedReceiver(uint256 _poolId) view returns (address, uint256)",
+  "function getFinalReceiver(uint256 _poolId) view returns (address)",
+  "function getRequiredPaymentsForCurrentRound(uint256 _poolId) view returns (uint256)",
+  "function getEligibleReceiverCount(uint256 _poolId) view returns (uint256)",
+  "function isFinalRound(uint256 _poolId) view returns (bool)",
+  "function poolCount() view returns (uint256)",
+] as const;
