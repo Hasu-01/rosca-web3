@@ -28,7 +28,7 @@ export default function MembersPanel({
       return;
     }
     if (!poolId) {
-      setMsg("Vui lòng nhập Pool ID.");
+      setMsg("Vui lòng nhập mã vòng hụi.");
       return;
     }
     setLoading(true);
@@ -59,7 +59,7 @@ export default function MembersPanel({
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-slate-800">Thành viên</h2>
+        <h2 className="text-lg font-semibold text-slate-800">Thành viên trong vòng hụi</h2>
         <button
           onClick={loadMembers}
           disabled={loading || !address}
@@ -95,9 +95,9 @@ export default function MembersPanel({
                   <button
                     onClick={() => copyAddr(m.wallet)}
                     className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
-                    title="Copy địa chỉ"
+                    title="Sao chép địa chỉ"
                   >
-                    Copy
+                    Sao chép
                   </button>
                 </div>
                 <span
@@ -115,7 +115,7 @@ export default function MembersPanel({
         </div>
       ) : (
         <p className="text-sm text-slate-400">
-          Chưa có thành viên. Bấm "Tải thành viên" để xem.
+          Chưa có dữ liệu thành viên. Hãy tải thông tin vòng hụi.
         </p>
       )}
       {msg && (

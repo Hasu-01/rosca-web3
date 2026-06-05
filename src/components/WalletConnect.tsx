@@ -16,26 +16,26 @@ export default function WalletConnect({
   const supported = chainId !== null && isSupportedChain(chainId);
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
       <div className="flex items-center gap-3">
         <h1 className="text-xl font-semibold text-slate-800">
-          Community ROSCA / Hụi Platform
+          Vòng Hụi Cộng Đồng
         </h1>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap justify-end">
         {chainId !== null && (
           <span
-            className={`text-xs px-2 py-1 rounded-full font-medium ${
+            className={`text-xs px-2.5 py-1 rounded-full font-medium ${
               supported
                 ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                 : "bg-amber-50 text-amber-700 border border-amber-200"
             }`}
           >
-            {getChainName(chainId)}
+            {getChainName(chainId)} (Chain ID: {chainId})
           </span>
         )}
         {address ? (
-          <span className="text-sm font-mono bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200">
+          <span className="text-sm font-mono bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700">
             {shortenAddress(address)}
           </span>
         ) : (

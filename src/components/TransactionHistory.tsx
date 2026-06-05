@@ -24,7 +24,7 @@ export default function TransactionHistory() {
     <div className="bg-white border border-slate-200 rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold text-slate-800">
-          Lịch sử góp hụi
+          Lịch sử giao dịch
         </h2>
         <div className="flex gap-2">
           <button
@@ -37,7 +37,7 @@ export default function TransactionHistory() {
             onClick={handleClear}
             className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors border border-slate-300"
           >
-            Xoá
+            Xóa lịch sử
           </button>
         </div>
       </div>
@@ -58,7 +58,7 @@ export default function TransactionHistory() {
                     {tx.action}
                   </div>
                   <div className="text-xs text-slate-400 font-mono truncate">
-                    {shortenAddress(tx.hash)}
+                    Mã giao dịch: {shortenAddress(tx.hash)}
                   </div>
                   <div className="text-[10px] text-slate-400">
                     Từ: {shortenAddress(tx.from)} | {time}
@@ -69,7 +69,7 @@ export default function TransactionHistory() {
                     onClick={() => copyHash(tx.hash)}
                     className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
                   >
-                    Copy
+                    Sao chép
                   </button>
                   {explorerUrl ? (
                     <a
@@ -81,7 +81,7 @@ export default function TransactionHistory() {
                       Etherscan
                     </a>
                   ) : (
-                    <span className="text-xs text-slate-400">Local tx</span>
+                    <span className="text-xs text-slate-400">Giao dịch local</span>
                   )}
                 </div>
               </div>

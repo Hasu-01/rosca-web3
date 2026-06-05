@@ -19,9 +19,31 @@ export function getChainName(chainId: number): string {
   return SUPPORTED_CHAINS[chainId] ?? `Unknown (${chainId})`;
 }
 
+// MetaMask provider detection — prefer MetaMask when multiple wallets exist
+export function getMetaMaskProvider(): EthereumProvider | null {
+  const ethereum = window.ethereum;
+  if (!ethereum) return null;
+
+  // Multiple providers (e.g. Coin98 + MetaMask)
+  if (ethereum.providers && Array.isArray(ethereum.providers)) {
+    const mm = ethereum.providers.find((p: any) => p.isMetaMask === true);
+    if (mm) return mm as EthereumProvider;
+  }
+
+  // Single provider — check if it's MetaMask
+  if (ethereum.isMetaMask) return ethereum;
+
+  return null;
+}
+
+export function hasMetaMask(): boolean {
+  return getMetaMaskProvider() !== null;
+}
+
 export function getProvider(): ethers.BrowserProvider | null {
-  if (!window.ethereum) return null;
-  return new ethers.BrowserProvider(window.ethereum);
+  const mm = getMetaMaskProvider();
+  if (!mm) return null;
+  return new ethers.BrowserProvider(mm);
 }
 
 export async function getSigner(): Promise<ethers.JsonRpcSigner | null> {
@@ -53,6 +75,16 @@ export function shortenAddress(addr: string): string {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
+// Token amount helpers — users enter simple numbers, we convert to 18-decimal units
+export function parseTokenAmount(value: string): bigint {
+  return ethers.parseUnits(value, 18);
+}
+
+export function formatTokenAmount(value: bigint | string): string {
+  return ethers.formatUnits(value, 18);
+}
+
+// Kept for backward compat where raw wei strings are needed
 export function formatEther(value: bigint | string): string {
   return ethers.formatEther(value);
 }

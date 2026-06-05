@@ -3,7 +3,7 @@ import {
   getSigner,
   getLendingContract,
   shortenAddress,
-  formatEther,
+  formatTokenAmount,
   isValidAddress,
 } from "../lib/ethers";
 
@@ -40,7 +40,7 @@ export default function ReceiverPanels({
         poolId
       );
       setSelectedReceiver(receiver);
-      setSelectedPayout(formatEther(payout));
+      setSelectedPayout(formatTokenAmount(payout));
     } catch (err: any) {
       setMsg(
         `Lỗi: ${err?.reason ?? err?.message ?? "Không thể kiểm tra"}`
@@ -72,15 +72,16 @@ export default function ReceiverPanels({
     }
   }, [lendingAddress, poolId]);
 
+  const ZERO = "0x0000000000000000000000000000000000000000";
+
   return (
     <div className="space-y-4">
-      {/* Selected Receiver */}
       <div className="bg-white border border-slate-200 rounded-xl p-5">
-        <h2 className="text-lg font-semibold text-slate-800 mb-2">
+        <h2 className="text-lg font-semibold text-slate-800 mb-1">
           Người hốt kỳ này
         </h2>
         <p className="text-xs text-slate-500 mb-3">
-          Smart contract chọn người chấp nhận nhận ít nhất trong kỳ này.
+          Smart contract tự chọn người chấp nhận nhận ít nhất trong kỳ.
         </p>
         <button
           onClick={checkSelected}
@@ -89,7 +90,7 @@ export default function ReceiverPanels({
         >
           {loadingSel ? "Đang kiểm tra..." : "Kiểm tra người được chọn"}
         </button>
-        {selectedReceiver && (
+        {selectedReceiver && selectedReceiver !== ZERO && (
           <div className="bg-slate-50 rounded-lg p-3 space-y-1">
             <div className="text-sm">
               <span className="text-slate-500">Người hốt:</span>{" "}
@@ -107,9 +108,8 @@ export default function ReceiverPanels({
         )}
       </div>
 
-      {/* Final Receiver */}
       <div className="bg-white border border-slate-200 rounded-xl p-5">
-        <h2 className="text-lg font-semibold text-slate-800 mb-2">
+        <h2 className="text-lg font-semibold text-slate-800 mb-1">
           Người hốt cuối
         </h2>
         <p className="text-xs text-slate-500 mb-3">
@@ -123,7 +123,7 @@ export default function ReceiverPanels({
         >
           {loadingFinal ? "Đang kiểm tra..." : "Kiểm tra người hốt cuối"}
         </button>
-        {finalReceiver && finalReceiver !== "0x0000000000000000000000000000000000000000" && (
+        {finalReceiver && finalReceiver !== ZERO && (
           <div className="bg-amber-50 rounded-lg p-3 border border-amber-200">
             <div className="text-sm">
               <span className="text-amber-700">Người hốt cuối:</span>{" "}

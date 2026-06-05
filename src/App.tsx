@@ -3,6 +3,8 @@ import { ethers } from "ethers";
 import {
   loadTokenAddress,
   loadLendingAddress,
+  getMetaMaskProvider,
+  hasMetaMask,
 } from "./lib/ethers";
 import type { PoolData } from "./lib/types";
 
@@ -15,6 +17,7 @@ import PoolActions from "./components/PoolActions";
 import ReceiverPanels from "./components/ReceiverPanels";
 import Timeline from "./components/Timeline";
 import TransactionHistory from "./components/TransactionHistory";
+import DemoMode from "./components/DemoMode";
 
 const DEFAULT_TOKEN = "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9";
 const DEFAULT_LENDING = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
@@ -34,14 +37,14 @@ export default function App() {
   const [showGuide, setShowGuide] = useState(false);
 
   const connect = useCallback(async () => {
-    const ethereum = window.ethereum;
-    if (!ethereum) {
-      alert("Vui lòng cài đặt MetaMask để sử dụng ứng dụng.");
+    const mm = getMetaMaskProvider();
+    if (!mm) {
+      alert("Không tìm thấy MetaMask. Vui lòng tắt các ví khác như Coin98 hoặc cài MetaMask.");
       return;
     }
     setConnecting(true);
     try {
-      const provider = new ethers.BrowserProvider(ethereum);
+      const provider = new ethers.BrowserProvider(mm);
       const accounts = await provider.send("eth_requestAccounts", []);
       if (accounts.length > 0) setAddress(accounts[0]);
       const network = await provider.getNetwork();
@@ -54,8 +57,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const ethereum = window.ethereum;
-    if (!ethereum) return;
+    const mm = getMetaMaskProvider();
+    if (!mm) return;
 
     const handleAccounts = (accounts: string[]) => {
       setAddress(accounts.length > 0 ? accounts[0] : "");
@@ -64,12 +67,12 @@ export default function App() {
       setChainId(Number(id));
     };
 
-    ethereum.on("accountsChanged", handleAccounts);
-    ethereum.on("chainChanged", handleChain);
+    mm.on("accountsChanged", handleAccounts);
+    mm.on("chainChanged", handleChain);
 
     (async () => {
       try {
-        const provider = new ethers.BrowserProvider(ethereum);
+        const provider = new ethers.BrowserProvider(mm);
         const accounts = await provider.send("eth_accounts", []);
         if (accounts.length > 0) setAddress(accounts[0]);
         const network = await provider.getNetwork();
@@ -80,8 +83,8 @@ export default function App() {
     })();
 
     return () => {
-      ethereum.removeListener("accountsChanged", handleAccounts);
-      ethereum.removeListener("chainChanged", handleChain);
+      mm.removeListener("accountsChanged", handleAccounts);
+      mm.removeListener("chainChanged", handleChain);
     };
   }, []);
 
@@ -96,7 +99,12 @@ export default function App() {
     }
   }, [pool]);
 
-  const noMetaMask = typeof window !== "undefined" && !window.ethereum;
+  const handleDemoPoolRefresh = useCallback(() => {
+    // Re-trigger pool load
+    setActivePoolId(1);
+  }, []);
+
+  const metaMaskMissing = typeof window !== "undefined" && !hasMetaMask();
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -111,51 +119,62 @@ export default function App() {
         </div>
       </header>
 
-      {noMetaMask && (
+      {metaMaskMissing && (
         <div className="max-w-6xl mx-auto px-4 mt-4">
           <div className="bg-red-50 border border-red-200 text-red-800 text-sm px-4 py-3 rounded-lg">
-            Không tìm thấy MetaMask. Vui lòng cài đặt MetaMask extension để sử dụng ứng dụng.
+            Không tìm thấy MetaMask. Vui lòng tắt các ví khác như Coin98 hoặc cài MetaMask.
           </div>
         </div>
       )}
 
       <main className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-slate-500">
-            Nền tảng ROSCA / Hụi cộng đồng trên blockchain
-          </p>
+        {/* Subtitle */}
+        <p className="text-sm text-slate-500 -mt-2">
+          Cùng góp đều mỗi kỳ, nhận lượt theo quy tắc minh bạch trên blockchain.
+        </p>
+
+        {/* Guide Toggle */}
+        <div className="flex items-center justify-end">
           <button
             onClick={() => setShowGuide(!showGuide)}
             className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
           >
-            {showGuide ? "Ẩn hướng dẫn" : "Xem hướng dẫn demo"}
+            {showGuide ? "Ẩn hướng dẫn" : "Xem hướng dẫn demo nhanh"}
           </button>
         </div>
 
+        {/* Demo Guide */}
         {showGuide && (
           <div className="bg-white border border-slate-200 rounded-xl p-5">
             <h2 className="text-lg font-semibold text-slate-800 mb-3">
-              Hướng dẫn Demo
+              Hướng dẫn demo nhanh
             </h2>
-            <ol className="list-decimal list-inside space-y-2 text-sm text-slate-600">
-              <li><strong>Kết nối ví</strong> — Bấm "Kết nối MetaMask" ở trên.</li>
-              <li><strong>Lưu địa chỉ contract</strong> — Nhập địa chỉ MockERC20 và CommunityLending đã deploy.</li>
-              <li><strong>Mint test token</strong> — Dùng panel "Demo Mint cUSD" để lấy cUSD cho demo.</li>
-              <li><strong>Tạo vòng hụi</strong> — Nhập tên, số tiền góp, số thành viên rồi bấm "Tạo Pool".</li>
-              <li><strong>Thành viên tham gia</strong> — Mỗi ví bấm "Tham gia Pool" (joinPool). Creator cũng phải join.</li>
-              <li><strong>Bắt đầu pool</strong> — Khi đủ thành viên, creator bấm "Bắt đầu Pool".</li>
-              <li><strong>Approve token</strong> — Bấm "Approve Token" để cho phép contract chuyển cUSD.</li>
-              <li><strong>Đóng hụi</strong> — Mỗi thành viên bấm "Đóng hụi" (deposit).</li>
-              <li><strong>Gửi offer / skip</strong> — Khi đủ đóng, thành viên chưa hốt gửi mức chấp nhận nhận hoặc skip.</li>
-              <li><strong>Chốt kỳ</strong> — Bấm "Chốt kỳ này" để chuyển tiền cho người chấp nhận nhận ít nhất.</li>
-              <li><strong>Kỳ cuối</strong> — Người hốt cuối không đóng. Khi các người đã hốt đóng đủ, contract tự động chuyển tiền cho người cuối.</li>
+            <ol className="list-decimal list-inside space-y-1.5 text-sm text-slate-600">
+              <li>Kết nối MetaMask.</li>
+              <li>Lưu địa chỉ hợp đồng.</li>
+              <li>Nạp token demo cho từng ví.</li>
+              <li>Tạo vòng hụi mới.</li>
+              <li>Các thành viên lần lượt tham gia.</li>
+              <li>Chủ vòng hụi bắt đầu vòng.</li>
+              <li>Mỗi thành viên cho phép hợp đồng dùng token.</li>
+              <li>Mỗi thành viên đóng kỳ hiện tại.</li>
+              <li>Thành viên đăng ký hốt hoặc bỏ qua lượt.</li>
+              <li>Chốt người hốt kỳ này.</li>
+              <li>Kỳ cuối sẽ tự động chuyển tiền cho người hốt cuối khi đủ điều kiện.</li>
             </ol>
-            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
-              <strong>Lưu ý quan trọng:</strong> Creator không tự động là thành viên — phải joinPool. Người đã hốt không được offer lại. Người hốt cuối không đóng ở kỳ cuối. Final payout tự động khi đủ đóng.
-            </div>
           </div>
         )}
 
+        {/* Demo Mode Stepper */}
+        <DemoMode
+          address={address}
+          tokenAddress={tokenAddr}
+          lendingAddress={lendingAddr}
+          chainId={chainId}
+          onPoolRefresh={handleDemoPoolRefresh}
+        />
+
+        {/* Settings + Wallet */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ContractSettings
             tokenAddress={tokenAddr}
@@ -170,6 +189,7 @@ export default function App() {
           />
         </div>
 
+        {/* Pool Dashboard + Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <PoolDashboard
             address={address}
@@ -192,6 +212,7 @@ export default function App() {
           </div>
         </div>
 
+        {/* Timeline + Receivers */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Timeline pool={pool} />
           <ReceiverPanels
@@ -201,12 +222,13 @@ export default function App() {
           />
         </div>
 
+        {/* Transaction History */}
         <TransactionHistory />
       </main>
 
       <footer className="border-t border-slate-200 bg-white mt-8">
         <div className="max-w-6xl mx-auto px-4 py-4 text-center text-xs text-slate-400">
-          Community ROSCA / Hụi Platform — Demo on Hardhat Localhost &amp; Sepolia Testnet
+          Vòng Hụi Cộng Đồng — Demo on Hardhat Localhost &amp; Sepolia Testnet
         </div>
       </footer>
     </div>

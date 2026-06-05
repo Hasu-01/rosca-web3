@@ -10,10 +10,10 @@ export default function Timeline({ pool }: TimelineProps) {
     return (
       <div className="bg-white border border-slate-200 rounded-xl p-5">
         <h2 className="text-lg font-semibold text-slate-800 mb-2">
-          Payout Timeline
+          Dòng thời gian góp hụi
         </h2>
         <p className="text-sm text-slate-400">
-          Tải pool để xem timeline.
+          Tải thông tin vòng hụi để xem dòng thời gian.
         </p>
       </div>
     );
@@ -25,7 +25,7 @@ export default function Timeline({ pool }: TimelineProps) {
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-5">
       <h2 className="text-lg font-semibold text-slate-800 mb-4">
-        Payout Timeline
+        Dòng thời gian góp hụi
       </h2>
       <div className="flex items-start gap-0 overflow-x-auto pb-2">
         {Array.from({ length: rounds }, (_, i) => {
@@ -48,7 +48,7 @@ export default function Timeline({ pool }: TimelineProps) {
             dotClass = "bg-amber-500";
           } else if (isCurrent) {
             if (pool.phase === RoundPhase.CONTRIBUTING) {
-              label = "Đang góp";
+              label = "Kỳ đang góp";
             } else if (pool.phase === RoundPhase.OFFERING) {
               label = "Đang chọn người hốt";
             } else {

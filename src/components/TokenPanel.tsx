@@ -2,8 +2,8 @@ import { useState, useCallback } from "react";
 import {
   getSigner,
   getTokenContract,
-  formatEther,
-  parseEther,
+  formatTokenAmount,
+  parseTokenAmount,
   isValidAddress,
 } from "../lib/ethers";
 
@@ -35,13 +35,13 @@ export default function TokenPanel({
       if (!signer) return;
       const contract = getTokenContract(tokenAddress, signer);
       const bal = await contract.balanceOf(address);
-      setBalance(formatEther(bal));
+      setBalance(formatTokenAmount(bal));
       if (lendingAddress && isValidAddress(lendingAddress)) {
         const alw = await contract.allowance(address, lendingAddress);
-        setAllowance(formatEther(alw));
+        setAllowance(formatTokenAmount(alw));
       }
     } catch (err: any) {
-      setMsg(`Lỗi: ${err?.reason ?? err?.message ?? "Không thể đọc balance"}`);
+      setMsg(`Lỗi: ${err?.reason ?? err?.message ?? "Không thể đọc số dư"}`);
     } finally {
       setLoading(false);
     }
@@ -49,7 +49,7 @@ export default function TokenPanel({
 
   const approve = async () => {
     if (!tokenAddress || !lendingAddress) {
-      setMsg("Vui lòng nhập địa chỉ contract trước.");
+      setMsg("Vui lòng nhập địa chỉ hợp đồng trước.");
       return;
     }
     setApproveLoading(true);
@@ -58,15 +58,15 @@ export default function TokenPanel({
       const signer = await getSigner();
       if (!signer) return;
       const contract = getTokenContract(tokenAddress, signer);
-      const amount = parseEther("1000000000000000000000");
+      const amount = parseTokenAmount("1000");
       const tx = await contract.approve(lendingAddress, amount);
       setMsg(`Đang chờ xác nhận... Tx: ${tx.hash}`);
       await tx.wait();
-      setMsg("Approve thành công!");
+      setMsg("Đã cho phép hợp đồng dùng token!");
       await refresh();
     } catch (err: any) {
       setMsg(
-        `Lỗi approve: ${err?.reason ?? err?.message ?? "Giao dịch bị từ chối"}`
+        `Lỗi: ${err?.reason ?? err?.message ?? "Giao dịch bị từ chối"}`
       );
     } finally {
       setApproveLoading(false);
@@ -88,15 +88,15 @@ export default function TokenPanel({
       const signer = await getSigner();
       if (!signer) return;
       const contract = getTokenContract(tokenAddress, signer);
-      const amount = parseEther(mintAmount);
+      const amount = parseTokenAmount(mintAmount);
       const tx = await contract.mint(mintTo, amount);
-      setMsg(`Đang mint... Tx: ${tx.hash}`);
+      setMsg(`Đang nạp... Tx: ${tx.hash}`);
       await tx.wait();
-      setMsg("Mint thành công!");
+      setMsg("Nạp token thành công!");
       await refresh();
     } catch (err: any) {
       setMsg(
-        `Lỗi mint: ${err?.reason ?? err?.message ?? "Giao dịch bị từ chối"}`
+        `Lỗi: ${err?.reason ?? err?.message ?? "Giao dịch bị từ chối"}`
       );
     } finally {
       setMintLoading(false);
@@ -105,20 +105,19 @@ export default function TokenPanel({
 
   return (
     <div className="space-y-4">
-      {/* Wallet Info */}
       <div className="bg-white border border-slate-200 rounded-xl p-5">
         <h2 className="text-lg font-semibold text-slate-800 mb-4">
-          Ví & Token
+          Ví của bạn
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
           <div className="bg-slate-50 rounded-lg p-3">
-            <div className="text-xs text-slate-500 mb-1">Số dư cUSD</div>
+            <div className="text-xs text-slate-500 mb-1">Số dư token góp hụi</div>
             <div className="text-lg font-semibold text-slate-800">
               {balance ? `${balance} cUSD` : "—"}
             </div>
           </div>
           <div className="bg-slate-50 rounded-lg p-3">
-            <div className="text-xs text-slate-500 mb-1">Allowance</div>
+            <div className="text-xs text-slate-500 mb-1">Hạn mức đã cho phép</div>
             <div className="text-lg font-semibold text-slate-800">
               {allowance ? `${allowance} cUSD` : "—"}
             </div>
@@ -130,30 +129,29 @@ export default function TokenPanel({
             disabled={loading || !address}
             className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors border border-slate-300 disabled:opacity-50"
           >
-            {loading ? "Đang tải..." : "Làm mới số dư"}
+            {loading ? "Đang tải..." : "Cập nhật số dư"}
           </button>
           <button
             onClick={approve}
             disabled={approveLoading || !address}
             className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
           >
-            {approveLoading ? "Đang approve..." : "Approve Token"}
+            {approveLoading ? "Đang xác nhận..." : "Cho phép hợp đồng dùng token"}
           </button>
         </div>
       </div>
 
-      {/* Demo Mint */}
       <div className="bg-white border border-slate-200 rounded-xl p-5">
         <h2 className="text-lg font-semibold text-slate-800 mb-2">
-          Demo Mint cUSD
+          Nạp token demo
         </h2>
         <div className="bg-amber-50 border border-amber-200 text-amber-800 text-xs px-3 py-2 rounded-lg mb-3">
-          Chỉ dùng cho demo local/testnet. Token này không có giá trị thật.
+          Token này chỉ dùng để demo trên local/testnet, không có giá trị thật.
         </div>
         <div className="space-y-3">
           <div>
             <label className="text-sm font-medium text-slate-600 block mb-1">
-              Địa chỉ nhận
+              Ví nhận token
             </label>
             <input
               type="text"
@@ -165,7 +163,7 @@ export default function TokenPanel({
           </div>
           <div>
             <label className="text-sm font-medium text-slate-600 block mb-1">
-              Số lượng
+              Số token muốn nạp
             </label>
             <input
               type="text"
@@ -180,13 +178,19 @@ export default function TokenPanel({
             disabled={mintLoading || !address}
             className="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
           >
-            {mintLoading ? "Đang mint..." : "Mint cUSD"}
+            {mintLoading ? "Đang nạp..." : "Nạp token demo"}
           </button>
         </div>
       </div>
 
       {msg && (
-        <div className="text-sm px-4 py-2 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 break-all">
+        <div
+          className={`text-sm px-4 py-2 rounded-lg break-all ${
+            msg.includes("thành công") || msg.includes("Đã cho")
+              ? "bg-emerald-50 border border-emerald-200 text-emerald-700"
+              : "bg-slate-50 border border-slate-200 text-slate-700"
+          }`}
+        >
           {msg}
         </div>
       )}

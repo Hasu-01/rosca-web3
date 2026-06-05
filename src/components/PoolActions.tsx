@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   getSigner,
   getLendingContract,
-  parseEther,
+  parseTokenAmount,
   isValidAddress,
   saveTxRecord,
 } from "../lib/ethers";
@@ -22,7 +22,7 @@ export default function PoolActions({
   poolId,
   onActionComplete,
 }: PoolActionsProps) {
-  const [acceptedPayout, setAcceptedPayout] = useState("");
+  const [acceptedPayout, setAcceptedPayout] = useState("25");
   const [loading, setLoading] = useState<string | null>(null);
   const [msg, setMsg] = useState("");
   const [lastTx, setLastTx] = useState("");
@@ -71,28 +71,28 @@ export default function PoolActions({
   };
 
   const joinPool = () =>
-    execTx("Join Pool", async () => {
+    execTx("Tham gia vòng hụi", async () => {
       const signer = await getSigner();
       const contract = getLendingContract(lendingAddress, signer!);
       return contract.joinPool(poolId);
     });
 
   const startPool = () =>
-    execTx("Start Pool", async () => {
+    execTx("Bắt đầu vòng hụi", async () => {
       const signer = await getSigner();
       const contract = getLendingContract(lendingAddress, signer!);
       return contract.startPool(poolId);
     });
 
   const deposit = () =>
-    execTx("Đóng hụi", async () => {
+    execTx("Đóng kỳ này", async () => {
       const signer = await getSigner();
       const contract = getLendingContract(lendingAddress, signer!);
       return contract.deposit(poolId);
     });
 
   const submitOffer = () =>
-    execTx("Submit Offer", async () => {
+    execTx("Đăng ký hốt kỳ này", async () => {
       if (!acceptedPayout || Number(acceptedPayout) <= 0) {
         throw new Error("Vui lòng nhập số tiền chấp nhận nhận.");
       }
@@ -100,19 +100,19 @@ export default function PoolActions({
       const contract = getLendingContract(lendingAddress, signer!);
       return contract.submitWithdrawalOffer(
         poolId,
-        parseEther(acceptedPayout)
+        parseTokenAmount(acceptedPayout)
       );
     });
 
   const skipOffer = () =>
-    execTx("Skip Offer", async () => {
+    execTx("Bỏ qua lượt hốt", async () => {
       const signer = await getSigner();
       const contract = getLendingContract(lendingAddress, signer!);
       return contract.skipWithdrawalOffer(poolId);
     });
 
   const withdrawRound = () =>
-    execTx("Withdraw Round", async () => {
+    execTx("Chốt người hốt kỳ này", async () => {
       const signer = await getSigner();
       const contract = getLendingContract(lendingAddress, signer!);
       return contract.withdrawCurrentRound(poolId);
@@ -124,50 +124,53 @@ export default function PoolActions({
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-5">
       <h2 className="text-lg font-semibold text-slate-800 mb-4">
-        Thao tác Pool
+        Thao tác trong vòng hụi
       </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <ActionBtn
-          label="Tham gia Pool"
+          label="Tham gia vòng hụi"
           sublabel="joinPool"
           onClick={joinPool}
-          loading={loading === "Join Pool"}
+          loading={loading === "Tham gia vòng hụi"}
           disabled={btnDisabled()}
         />
         <ActionBtn
-          label="Bắt đầu Pool"
+          label="Bắt đầu vòng hụi"
           sublabel="startPool"
           onClick={startPool}
-          loading={loading === "Start Pool"}
+          loading={loading === "Bắt đầu vòng hụi"}
           disabled={btnDisabled()}
         />
         <ActionBtn
-          label="Đóng hụi"
+          label="Đóng kỳ này"
           sublabel="deposit"
           onClick={deposit}
-          loading={loading === "Đóng hụi"}
+          loading={loading === "Đóng kỳ này"}
           disabled={btnDisabled()}
         />
         <ActionBtn
-          label="Skip Offer"
+          label="Bỏ qua lượt hốt"
           sublabel="skipWithdrawalOffer"
           onClick={skipOffer}
-          loading={loading === "Skip Offer"}
+          loading={loading === "Bỏ qua lượt hốt"}
           disabled={btnDisabled()}
         />
         <ActionBtn
-          label="Chốt kỳ này"
+          label="Chốt người hốt kỳ này"
           sublabel="withdrawCurrentRound"
           onClick={withdrawRound}
-          loading={loading === "Withdraw Round"}
+          loading={loading === "Chốt người hốt kỳ này"}
           disabled={btnDisabled()}
         />
       </div>
 
       <div className="mt-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
         <label className="text-sm font-medium text-slate-600 block mb-1">
-          Số tiền chấp nhận nhận (cUSD)
+          Số tiền chấp nhận nhận
         </label>
+        <p className="text-[11px] text-slate-400 mb-2">
+          Người chấp nhận nhận ít nhất sẽ được smart contract chọn hốt kỳ này.
+        </p>
         <div className="flex gap-2">
           <input
             type="text"
@@ -177,10 +180,10 @@ export default function PoolActions({
             className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           <ActionBtn
-            label="Gửi Offer"
+            label="Đăng ký hốt kỳ này"
             sublabel="submitWithdrawalOffer"
             onClick={submitOffer}
-            loading={loading === "Submit Offer"}
+            loading={loading === "Đăng ký hốt kỳ này"}
             disabled={btnDisabled() || !acceptedPayout}
           />
         </div>

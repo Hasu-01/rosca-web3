@@ -51,13 +51,16 @@ export default function ContractSettings({
 
   return (
     <div className="bg-white border border-slate-200 rounded-xl p-5">
-      <h2 className="text-lg font-semibold text-slate-800 mb-4">
-        Cài đặt Contract
+      <h2 className="text-lg font-semibold text-slate-800 mb-1">
+        Thiết lập hợp đồng
       </h2>
+      <p className="text-xs text-slate-500 mb-4">
+        Dán địa chỉ token demo và hợp đồng hụi để website kết nối đúng với smart contract bạn đã deploy.
+      </p>
       <div className="space-y-3">
         <div>
           <label className="text-sm font-medium text-slate-600 block mb-1">
-            MockERC20 Address
+            Địa chỉ MockERC20
           </label>
           <input
             type="text"
@@ -69,7 +72,7 @@ export default function ContractSettings({
         </div>
         <div>
           <label className="text-sm font-medium text-slate-600 block mb-1">
-            CommunityLending Address
+            Địa chỉ CommunityLending
           </label>
           <input
             type="text"
@@ -90,13 +93,12 @@ export default function ContractSettings({
             onClick={handleClear}
             className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium px-4 py-2 rounded-lg transition-colors border border-slate-300"
           >
-            Xoá đã lưu
+            Xóa đã lưu
           </button>
         </div>
         {tokenAddress && lendingAddress && (
-          <div className="text-xs text-slate-500 mt-2">
-            Đã lưu: Token {tokenInput.slice(0, 8)}... | Lending{" "}
-            {lendingInput.slice(0, 8)}...
+          <div className="text-xs text-slate-500 mt-1">
+            Đã lưu: Token {tokenInput.slice(0, 8)}... | Hợp đồng {lendingInput.slice(0, 8)}...
           </div>
         )}
       </div>
